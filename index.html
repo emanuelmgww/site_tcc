@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gerenciamento - Biblioteca</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Página de Login -->
+        <div id="loginPage">
+            <div class="login-container">
+                <div class="header">
+                    <h1>📚 Gerenciamento da Biblioteca</h1>
+                    <p><strong>E. E. Dr. Cristiano Machado</strong></p>
+                </div>
+
+                <form class="login-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Usuário</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+
+                    <div id="loginError" class="error-message hidden">
+                        Usuário ou senha incorretos!
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sistema Principal -->
+        <div id="mainSystem" class="hidden">
+            <div class="header">
+                <h1>📚 Sistema de Biblioteca</h1>
+                <p><strong>Gerenciamento de Livros e Empréstimos</strong></p>
+            </div>
+
+            <div class="nav">
+                <div class="nav-links">
+                    <button class="nav-btn active" onclick="showSection('books')">Livros</button>
+                    <button class="nav-btn" onclick="showSection('loans')">Empréstimos</button>
+                </div>
+                <div class="user-info">
+                    <span>Bem-vindo, <strong id="loggedUser">Bibliotecário</strong></span>
+                    <button class="btn btn-danger" onclick="logout()">Sair</button>
+                </div>
+            </div>
+
+            <div id="successMessage" class="success-message hidden"></div>
+
+            <!-- Seção de Livros -->
+            <div id="booksSection">
+                <div class="section-header">
+                    <h2>Gerenciamento de Livros</h2>
+                    <button class="btn btn-success" id="toggleBookFormBtn" onclick="toggleBookForm()">
+                        Cadastrar Novo Livro
+                    </button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" id="bookSearch" placeholder="Pesquisar livros..." onkeyup="searchBooks()">
+                </div>
+
+                <div id="bookFormContainer" class="form-container hidden">
+                    <h3 id="bookFormTitle">Cadastrar Novo Livro</h3>
+                    <form id="bookForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bookTitle">Título</label>
+                                <input type="text" id="bookTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bookAuthor">Autor</label>
+                                <input type="text" id="bookAuthor" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bookISBN">ISBN (13 dígitos)</label>
+                                <input type="text" id="bookISBN" maxlength="17" placeholder="978-3-16-148410-0" required>
+                                <small class="isbn-help">Digite apenas números, a formatação será aplicada automaticamente</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="bookYear">Ano</label>
+                                <input type="number" id="bookYear" min="1000" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bookGenre">Gênero</label>
+                                <input type="text" id="bookGenre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bookCopies">Número de Exemplares</label>
+                                <input type="number" id="bookCopies" min="2" max="100" value="2" required>
+                                <small class="copies-help">Mínimo 2 exemplares</small>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success" id="bookSubmitBtn">Cadastrar Livro</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table id="booksTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>ISBN</th>
+                                <th>Ano</th>
+                                <th>Gênero</th>
+                                <th>Status dos Exemplares</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            <td><span class="copy-info ${statusClass}">${statusText}</span></td>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Seção de Empréstimos -->
+            <div id="loansSection" class="hidden">
+                <div class="section-header">
+                    <h2>Gerenciamento de Empréstimos</h2>
+                    <button class="btn btn-success" id="toggleLoanFormBtn" onclick="toggleLoanForm()">
+                        Novo Empréstimo
+                    </button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" id="loanSearch" placeholder="Pesquisar empréstimos..." onkeyup="searchLoans()">
+                </div>
+
+                <div id="loanFormContainer" class="form-container hidden">
+                    <h3 id="loanFormTitle">Novo Empréstimo</h3>
+                    <form id="loanForm">
+                        <div class="form-group">
+                            <label for="loanBookSearch">Livro</label>
+                            <div class="searchable-select">
+                                <input type="text" id="loanBookSearch" placeholder="Digite título ou autor..." autocomplete="off">
+                                <ul id="loanBookResults" class="search-results hidden"></ul>
+                                <input type="hidden" id="loanBook" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loanUser">Nome do Usuário</label>
+                            <input type="text" id="loanUser" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="loanDate">Data do Empréstimo</label>
+                                <input type="date" id="loanDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="returnDate">Data de Devolução</label>
+                                <input type="date" id="returnDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loanStatus">Status</label>
+                            <select id="loanStatus" required>
+                                <option value="emprestado">Emprestado</option>
+                                <option value="atrasado">Atrasado</option>
+                                <option value="devolvido">Devolvido</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success" id="loanSubmitBtn">Registrar Empréstimo</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table id="loansTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Livro</th>
+                                <th>Usuário</th>
+                                <th>Data Empréstimo</th>
+                                <th>Data Devolução</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loansTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -183,7 +183,6 @@ function calculateReturnDate() {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
     returnDateEl.value = `${year}-${month}-${day}`;
-    returnDateEl.min = loanDate;
 }
 
 function getNextBookId() {

@@ -2,6 +2,8 @@
 
 Sistema web simples e funcional para gerenciamento de livros e empréstimos em uma biblioteca escolar. Desenvolvido com **HTML**, **CSS** e **JavaScript puro**, utiliza o `localStorage` para armazenar dados de forma persistente no navegador.
 
+Acesse em: https://emanuelmgww.github.io/site_tcc/
+
 ---
 
 ## 🔧 Funcionalidades Principais

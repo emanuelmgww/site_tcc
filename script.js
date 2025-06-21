@@ -1,4 +1,4 @@
-// Sistema de Gerenciamento de Biblioteca
+// Inicialização do sistema no localStorage
 if (!window.libraryData) {
     window.libraryData = {
         books: [],
@@ -37,18 +37,15 @@ function saveData() {
 function loadData() {
     try {
         const savedData = localStorage.getItem('libraryData');
-        if (savedData) {
-            window.libraryData = JSON.parse(savedData);
-        }
+        if (savedData) window.libraryData = JSON.parse(savedData);
+
         if (window.libraryData) {
             books = window.libraryData.books || [];
             loans = window.libraryData.loans || [];
             currentUser = window.libraryData.currentUser || '';
             editingBookId = window.libraryData.editingBookId || null;
             editingLoanId = window.libraryData.editingLoanId || null;
-            if (currentUser) {
-                maintainSession();
-            }
+            if (currentUser) maintainSession();
         }
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -56,14 +53,13 @@ function loadData() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadData(); // Carrega os dados salvos
-    setupEventListeners(); // Configura eventos
-    setMinDate(); // Define data mínima nos campos de data
+    loadData();
+    setupEventListeners();
+    setMinDate();
 
     const loginPage = document.getElementById('loginPage');
     const mainSystem = document.getElementById('mainSystem');
 
-    // Garante que apenas uma tela seja visível desde o início
     if (loginPage && mainSystem) {
         if (currentUser) {
             loginPage.classList.add('hidden');
@@ -74,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Garante que os dados sejam mostrados corretamente
     loadBooksDropdown();
     renderBooks();
     renderLoans();
@@ -112,35 +107,18 @@ function handleLogin(e) {
     const password = document.getElementById('password').value;
 
     if (validCredentials[username] && validCredentials[username] === password) {
-        // Define o usuário logado
         currentUser = username;
         window.libraryData.currentUser = currentUser;
-
-        // Atualiza texto de boas-vindas
-        const loggedUserElement = document.getElementById('loggedUser');
-        if (loggedUserElement) {
-            loggedUserElement.textContent = username;
-        }
-
-        // Esconde tela de login e mostra o sistema principal
-        const loginPage = document.getElementById('loginPage');
-        const mainSystem = document.getElementById('mainSystem');
-        const loginError = document.getElementById('loginError');
-
-        if (loginPage) loginPage.classList.add('hidden');
-        if (mainSystem) mainSystem.classList.remove('hidden');
-        if (loginError) loginError.classList.add('hidden');
-
-        // Carrega os dados da interface
+        document.getElementById('loggedUser').textContent = username;
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainSystem').classList.remove('hidden');
+        document.getElementById('loginError').classList.add('hidden');
         loadBooksDropdown();
         renderBooks();
         renderLoans();
-
-        // Salva o estado no localStorage
         autoSave();
     } else {
-        const loginError = document.getElementById('loginError');
-        if (loginError) loginError.classList.remove('hidden');
+        document.getElementById('loginError').classList.remove('hidden');
     }
 }
 
@@ -159,8 +137,6 @@ function showSection(section) {
     ['books', 'loans'].forEach(id => document.getElementById(id + 'Section').classList.add('hidden'));
     const target = document.getElementById(section + 'Section');
     if (target) target.classList.remove('hidden');
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    if (event?.target) event.target.classList.add('active');
     hideBookForm();
     hideLoanForm();
 }
@@ -177,13 +153,11 @@ function showSuccessMessage(message) {
 function formatISBN() {
     const input = document.getElementById('bookISBN');
     if (!input) return;
-
     let value = input.value.replace(/\D/g, '');
     if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
     if (value.length >= 5) value = value.slice(0, 5) + '-' + value.slice(5);
     if (value.length >= 8) value = value.slice(0, 8) + '-' + value.slice(8);
     if (value.length >= 15) value = value.slice(0, 15) + '-' + value.slice(15);
-
     input.value = value.slice(0, 17);
 }
 
@@ -247,8 +221,7 @@ function toggleBookForm() {
     if (container.classList.contains('hidden')) {
         container.classList.remove('hidden');
         button.textContent = 'Cancelar';
-        button.classList.remove('btn-success');
-        button.classList.add('btn-secondary');
+        button.classList.replace('btn-success', 'btn-secondary');
         if (!editingBookId) {
             document.getElementById('bookFormTitle').textContent = 'Cadastrar Novo Livro';
             document.getElementById('bookSubmitBtn').textContent = 'Cadastrar Livro';
@@ -265,8 +238,7 @@ function hideBookForm() {
     if (container) container.classList.add('hidden');
     if (button) {
         button.textContent = 'Cadastrar Novo Livro';
-        button.classList.remove('btn-secondary');
-        button.classList.add('btn-success');
+        button.classList.replace('btn-secondary', 'btn-success');
     }
     if (form) form.reset();
     editingBookId = null;
@@ -285,7 +257,6 @@ function handleBookSubmit(e) {
     };
 
     const isbnNumbers = formData.isbn.replace(/\D/g, '');
-
     if (isbnNumbers.length !== 13) {
         alert('ISBN deve conter exatamente 13 dígitos!');
         return;
@@ -322,6 +293,7 @@ function handleBookSubmit(e) {
 function editBook(id) {
     const book = books.find(b => b.id === id);
     if (!book) return;
+
     editingBookId = id;
     window.libraryData.editingBookId = id;
     document.getElementById('bookTitle').value = book.title;
@@ -376,10 +348,9 @@ function renderBooks(booksToRender = books) {
 
         let statusClass = '';
         let statusText = '';
-
         if (availableCopies <= 0) {
             statusClass = 'danger';
-            statusText = 'Último exemplar reservado\n(não disponível)';
+            statusText = 'Último exemplar reservado (não disponível)';
         } else {
             statusClass = 'available';
             statusText = `${availableCopies} exemplar(es) disponíveis`;
@@ -456,7 +427,6 @@ function setupLoanBookSearch(editingLoanBookId = null) {
                 const li = document.createElement('li');
                 li.className = 'search-result-item';
                 li.dataset.id = book.id;
-
                 let badgeClass = availableCopies > 0 ? 'bg-success' : 'bg-danger';
                 let availableToShow = availableCopies >= 0 ? availableCopies : 0;
 
@@ -515,7 +485,7 @@ function handleLoanSubmit(e) {
         userName: document.getElementById('loanUser').value,
         loanDate: document.getElementById('loanDate').value,
         returnDate: document.getElementById('returnDate').value,
-        status: document.getElementById('loanStatus').value
+        status: 'emprestado' // Sempre começa como emprestado
     };
 
     if (!editingLoanId) {
@@ -524,12 +494,10 @@ function handleLoanSubmit(e) {
             alert('Livro não encontrado!');
             return;
         }
-
         const borrowedCopies = loans.filter(l => l.bookId === formData.bookId && l.status !== 'devolvido').length;
         const availableCopies = book.copies - borrowedCopies - 1;
-
         if (availableCopies <= 0) {
-            alert('Não há exemplares disponíveis para empréstimo!\nApenas o último permanece na biblioteca.');
+            alert('Não há exemplares disponíveis para empréstimo! Apenas o último permanece na biblioteca.');
             return;
         }
     }
@@ -557,12 +525,13 @@ function handleLoanSubmit(e) {
 function editLoan(id) {
     const loan = loans.find(l => l.id === id);
     if (!loan) return;
+
     editingLoanId = id;
     window.libraryData.editingLoanId = id;
     document.getElementById('loanUser').value = loan.userName;
     document.getElementById('loanDate').value = loan.loanDate;
     document.getElementById('returnDate').value = loan.returnDate;
-    document.getElementById('loanStatus').value = loan.status;
+    document.getElementById('loanStatus').value = 'emprestado'; // Sempre volta pra isso
     const container = document.getElementById('loanFormContainer');
     if (container) container.classList.remove('hidden');
     document.getElementById('loanFormTitle').textContent = 'Editar Empréstimo';
@@ -575,6 +544,7 @@ function editLoan(id) {
 function returnBook(id) {
     const loan = loans.find(l => l.id === id);
     if (!loan) return;
+
     if (confirm('Confirmar devolução do livro?')) {
         loan.status = 'devolvido';
         const todayBR = formatDateToBR(getCurrentDateISO());
@@ -617,14 +587,22 @@ function renderLoans(loansToRender = loans) {
     const tbody = document.getElementById('loansTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
+
     loansToRender.forEach(loan => {
         const book = books.find(b => b.id === loan.bookId);
         const bookTitle = book ? book.title : 'Livro não encontrado';
         const loanDate = formatDateToBR(loan.loanDate);
         const returnDate = formatDateToBR(loan.returnDate);
+
+        // Atualiza automaticamente para "atrasado" se necessário
+        if (loan.status !== 'devolvido' && isLoanOverdue(loan)) {
+            loan.status = 'atrasado';
+        }
+
         let statusClass = '';
-        let statusText = loan.status;
+        let statusText = '';
         let actionButtons = '';
+
         if (loan.status === 'devolvido') {
             statusClass = 'returned';
             statusText = 'Devolvido';
@@ -632,7 +610,7 @@ function renderLoans(loansToRender = loans) {
                 <button class="btn btn-warning btn-small" onclick="editLoan(${loan.id})">Editar</button>
                 <button class="btn btn-danger btn-small" onclick="deleteLoan(${loan.id})">Excluir</button>
             `;
-        } else if (isLoanOverdue(loan)) {
+        } else if (loan.status === 'atrasado') {
             statusClass = 'overdue';
             statusText = 'Atrasado';
             actionButtons = `
@@ -702,9 +680,7 @@ function maintainSession() {
     const loginPage = document.getElementById('loginPage');
     const mainSystem = document.getElementById('mainSystem');
 
-    if (loggedUser) {
-        loggedUser.textContent = currentUser; // Mostra o nome do usuário logado
-    }
+    if (loggedUser) loggedUser.textContent = currentUser;
 
     if (loginPage && mainSystem) {
         if (currentUser) {
